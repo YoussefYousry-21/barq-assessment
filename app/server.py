@@ -139,7 +139,6 @@ def create_app(config=None, dependencies=None):
     return app
 
 if __name__ == "__main__":
-    log_event("INFO", "configuration_loaded", database_url=os.getenv("DATABASE_URL", ""),
-              redis_url=os.getenv("REDIS_URL", ""))
+    log_event("INFO", "configuration_loaded")
     create_app().run(host=os.getenv("APP_HOST", "0.0.0.0"),
                      port=int(os.getenv("APP_PORT", "8080")), threaded=True, debug=False)
