@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Check script syntax
+        run: |
+          python3 -m py_compile validate.py failure_test.py
+          bash -n backup.sh restore.sh
+
+      - name: Create temporary CI environment
+        run: |
+          python3 - <<'PY'
+          import secrets
+          from pathlib import Path
+          password = secrets.token_hex(24)
+          Path(".env").write_text(
+              "PUBLIC_PORT=8080\n"
+              "POSTGRES_USER=barq_app\n"
+              "POSTGRES_DB=barq_tasks\n"
+              f"POSTGRES_PASSWORD={password}\n"
+              f"DATABASE_URL=postgresql://barq_app:{password}@postgres:5432/barq_tasks\n"
+              "REDIS_URL=redis://redis:6379/0\n"
+          )
+          Path(".env").chmod(0o600)
+          PY
+
+      - name: Check Compose configuration
+        run: docker compose -p barq-assessment config --quiet
+
+      - name: Build and start
+        run: docker compose -p barq-assessment up --build -d
+
+      - name: Wait and validate
+        run: python3 validate.py
+
+      - name: Show container state on failure
+        if: failure()
+        run: docker compose -p barq-assessment ps -a
+
+      - name: Stop containers
+        if: always()
+        run: docker compose -p barq-assessment down
