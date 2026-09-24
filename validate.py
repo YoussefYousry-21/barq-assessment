@@ -97,13 +97,25 @@ try:
         text=True, timeout=10
     )
     containers = {item["Name"].lstrip("/"): item for item in json.loads(raw.stdout)}
-    report("service health", all(
-        c["State"]["Running"] and
-        (c["State"].get("Health", {}).get("Status") == "healthy"
-         if c["Name"].lstrip("/") != "nginx" else True)
-        for c in containers.values()
-    ) and len(containers) == len(names))
-
+    healthy = False
+    for _ in range(30):
+        raw = subprocess.run(
+            ["docker", "inspect", *names], check=True, capture_output=True,
+            text=True, timeout=10
+        )
+        containers = {
+            item["Name"].lstrip("/"): item for item in json.loads(raw.stdout)
+        }
+        healthy = len(containers) == len(names) and all(
+            c["State"]["Running"] and
+            (name == "nginx" or
+             c["State"].get("Health", {}).get("Status") == "healthy")
+            for name, c in containers.items()
+        )
+        if healthy:
+            break
+        time.sleep(2)
+    report("service health", healthy)
     report("only NGINX publishes", all(
         not containers[name]["HostConfig"]["PortBindings"]
         for name in names if name != "nginx"
