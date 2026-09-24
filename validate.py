@@ -108,8 +108,7 @@ try:
         }
         healthy = len(containers) == len(names) and all(
             c["State"]["Running"] and
-            (name == "nginx" or
-             c["State"].get("Health", {}).get("Status") == "healthy")
+            c["State"].get("Health", {}).get("Status") == "healthy"
             for name, c in containers.items()
         )
         if healthy:
