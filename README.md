@@ -1,6 +1,6 @@
 # BARQ DevOps assessment
 
-A Flask API runs behind NGINX with PostgreSQL and Redis. The current pre-video setup has two app instances and publishes only NGINX at `127.0.0.1:8080`. The recorded challenge will change the final setup to three instances on port 8090.
+A Flask API runs behind NGINX with PostgreSQL and Redis. The final Compose configuration defines three app instances (`app-01`, `app-02`, and `app-03`) and publishes only NGINX at `127.0.0.1:8090`. Flask listens on port 8080 inside the containers; NGINX listens on port 80 inside its container.
 
 ## Requirements
 
@@ -78,4 +78,11 @@ This retains named volumes. `down -v` permanently deletes this lab's data and mu
 
 ## Availability limits
 
-Two app instances tolerate one stopped app in the measured sequential test. NGINX, PostgreSQL, Redis, and the Docker host remain single points of failure. Production needs redundancy, off-host backups, TLS, monitoring, and managed secrets.
+The initial two-app failure test measured 30/30 HTTP 200 responses with `app-01` stopped. The final configuration has three app instances; rerun the updated failure test to verify its final behavior. NGINX, PostgreSQL, Redis, and the Docker host remain single points of failure. Production would require redundant ingress and data services, off-host backups, TLS, monitoring, and managed secrets.
+
+
+## Validation limits
+
+`validate.py` should return a nonzero exit code when an endpoint, dependency operation, expected instance, health check, port binding, or network membership fails. A green CI run proves those checks passed for that commit in the CI environment. It does not prove production availability, security, performance under load, or that every possible failure was covered.
+
+The recorded demonstration includes runtime troubleshooting. The investigation journal records observed errors and repairs; a command that failed during startup is not reported as a successful test.

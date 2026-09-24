@@ -1,9 +1,5 @@
 # Technical decisions
 
-Record at least 5 decisions. Include assumptions and limits.
-
-# Technical decisions
-
 ## 1. Python base image and process user
 - Choice: Pin `python:3.12-slim-bookworm` by digest and run the app as UID 10001.
 - Why: A small Debian image supports the installed Python packages; a non-root app limits the impact of a process compromise.
@@ -58,8 +54,3 @@ Record at least 5 decisions. Include assumptions and limits.
 - Trade-off: Green CI covers defined checks only; report-only scan does not enforce remediation.
 - Evidence: CI run 35940983269 and scan run 35943656166.
 - Production improvement: Review findings, then adopt a documented blocking threshold.
-
-
-
-Cover your base image, health checks, networks, timeouts/retries, restart/resource settings,
-storage and any other meaningful choices.

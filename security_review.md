@@ -1,5 +1,3 @@
-# Security and production-readiness review
-
 # Security and production readiness review
 
 This is a local assessment stack. “Implemented” describes tested repository changes; “Production follow-up” is proposed work, not a claim of completion.
@@ -7,7 +5,7 @@ This is a local assessment stack. “Implemented” describes tested repository 
 | Risk and evidence | Implemented | Production follow-up / verification |
 |---|---|---|
 | Database credentials originally appeared in starter configuration and an app image copy step. | Moved runtime values to ignored `.env`; removed the image copy; `.env.example` contains placeholders. | Use a secret manager, rotate any exposed credentials, and scan full Git history. Verify with image inspection and a secret scan. |
-| PostgreSQL and Redis originally published host ports. | Removed their `ports`; only NGINX publishes loopback 8080. `validate.py` checks bindings. | Add host firewall rules and restrict deployment network access. |
+| PostgreSQL and Redis originally published host ports. | Removed their `ports`; only NGINX publishes loopback 8090 in the final configuration. `validate.py` checks bindings. | Add host firewall rules and restrict deployment network access. |
 | NGINX originally shared backend network access. | NGINX now joins only `frontend`; apps bridge `frontend` and `backend`; database/cache join only `backend`. | Enforce equivalent segmentation in production orchestration and test it continuously. |
 | The app originally ran as root. | Dockerfile uses UID 10001 (`app`). | Run NGINX and data services with least privilege where supported; consider read-only filesystems and dropped capabilities. |
 | Base images and Python packages can contain vulnerabilities. | Image tags use digests; an optional Trivy scan runs on push/PR. Run 35943656166 found 3 HIGH `libpcre2-8-0` findings (CVE-2026-86145, CVE-2026-89157, CVE-2026-89161). | Review fixed package/image versions, rebuild, rescan, and set an agreed vulnerability threshold. The report-only scan does not block CI. |
