@@ -1,0 +1,20 @@
+digraph BARQ {
+  rankdir=LR;
+  graph [fontname="Arial", label="BARQ assessment: current two-app / port 8080 setup", labelloc=t];
+  node [shape=box, style=rounded, fontname="Arial"];
+
+  client [label="Client\n127.0.0.1:8080"];
+  nginx [label="NGINX\ncontainer :80\n/health check"];
+  app1 [label="app-01\nFlask :8080\n/health and /ready"];
+  app2 [label="app-02\nFlask :8080\n/health and /ready"];
+  pg [label="PostgreSQL :5432\npostgres-data volume"];
+  redis [label="Redis :6379\nredis-data volume (AOF)"];
+
+  client -> nginx [label="published loopback port"];
+  nginx -> app1 [label="frontend network"];
+  nginx -> app2 [label="frontend network"];
+  app1 -> pg [label="backend network"];
+  app2 -> pg [label="backend network"];
+  app1 -> redis [label="backend network"];
+  app2 -> redis [label="backend network"];
+}
