@@ -9,7 +9,7 @@ import urllib.error
 import urllib.request
 
 PROJECT = "barq-assessment"
-EXPECTED = set(os.getenv("EXPECTED_INSTANCES", "app-01,app-02").split(","))
+EXPECTED = set(os.getenv("EXPECTED_INSTANCES", "app-01,app-02,app-03").split(","))
 PORT = os.getenv("PUBLIC_PORT", "8080")
 
 # Compose reads .env automatically; this standalone script reads only PUBLIC_PORT.

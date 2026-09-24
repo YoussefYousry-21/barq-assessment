@@ -7,7 +7,7 @@ import sys
 import time
 import urllib.error
 import urllib.request
-
+import os
 port = "8080"
 with open(".env", encoding="utf-8") as env_file:
     for line in env_file:

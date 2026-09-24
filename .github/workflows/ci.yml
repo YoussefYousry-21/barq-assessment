@@ -27,7 +27,7 @@ jobs:
           from pathlib import Path
           password = secrets.token_hex(24)
           Path(".env").write_text(
-              "PUBLIC_PORT=8080\n"
+              "PUBLIC_PORT=8090\n"
               "POSTGRES_USER=barq_app\n"
               "POSTGRES_DB=barq_tasks\n"
               f"POSTGRES_PASSWORD={password}\n"
