@@ -33,21 +33,21 @@ python3 validate.py
 python3 failure_test.py
 ```
 
-The initial public URL is `http://127.0.0.1:8080`. Only NGINX publishes a host port. `/health` checks the process; `/ready` checks PostgreSQL and Redis. The failure test stops app-01, measures 30 requests, restores it, and proves both identities return.
+The final public URL is `http://127.0.0.1:8090`. Only NGINX publishes a host port. `/health` checks the process; `/ready` checks PostgreSQL and Redis. The failure test stops app-01, measures 30 requests, restores it, and checks the expected identities after recovery.
 
 ## Endpoints
 
 ```bash
-curl -fsS http://127.0.0.1:8080/
-curl -fsS http://127.0.0.1:8080/health
-curl -fsS http://127.0.0.1:8080/ready
-curl -fsS http://127.0.0.1:8080/instance
-curl -fsS http://127.0.0.1:8080/records
-curl -fsS -H 'Content-Type: application/json' -d '{"title":"demo"}' http://127.0.0.1:8080/records
-curl -fsS http://127.0.0.1:8080/counter
+curl -fsS http://127.0.0.1:8090/
+curl -fsS http://127.0.0.1:8090/health
+curl -fsS http://127.0.0.1:8090/ready
+curl -fsS http://127.0.0.1:8090/instance
+curl -fsS http://127.0.0.1:8090/records
+curl -fsS -H 'Content-Type: application/json' -d '{"title":"demo"}' http://127.0.0.1:8090/records
+curl -fsS http://127.0.0.1:8090/counter
 ```
 
-Repeat `/instance` to see app-01 and app-02. NGINX reaches apps through `frontend`; apps reach `postgres:5432` and `redis:6379` through internal `backend`. PostgreSQL and Redis have named volumes.
+Repeat `/instance` to observe app-01, app-02, and app-03. NGINX reaches apps through `frontend`; apps reach `postgres:5432` and `redis:6379` through internal `backend`. PostgreSQL and Redis have named volumes.
 
 ## Backup and restore
 

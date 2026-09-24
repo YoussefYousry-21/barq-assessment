@@ -93,6 +93,8 @@ services:
         condition: service_healthy
       app-02:
         condition: service_healthy
+      app-03:
+        condition: service_healthy
     networks: [frontend]
 networks:
   frontend:

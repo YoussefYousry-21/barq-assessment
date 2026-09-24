@@ -8,7 +8,7 @@ import time
 import urllib.error
 import urllib.request
 import os
-port = "8080"
+port = "8090"
 with open(".env", encoding="utf-8") as env_file:
     for line in env_file:
         if line.startswith("PUBLIC_PORT="):
@@ -16,6 +16,8 @@ with open(".env", encoding="utf-8") as env_file:
 
 url = f"http://127.0.0.1:{port}/instance"
 compose = ["docker", "compose", "-p", "barq-assessment"]
+expected = set(os.getenv("EXPECTED_INSTANCES", "app-01,app-02,app-03").split(","))
+survivors = expected - {"app-01"}
 failed = False
 
 
@@ -43,7 +45,7 @@ try:
 
     print(f"Traffic while app-01 stopped: status={dict(counts)} "
           f"instances={dict(identities)}")
-    if counts == {200: 30} and identities == {"app-02": 30}:
+    if counts == {200: 30} and set(identities) == survivors:
         print("PASS continued availability: 30 requests, 0 errors")
     else:
         print("FAIL continued availability")
@@ -67,12 +69,12 @@ while time.monotonic() < deadline:
     status, identity = fetch()
     if status == 200 and identity:
         seen.add(identity)
-    if seen == {"app-01", "app-02"}:
+    if seen == expected:
         break
     time.sleep(1)
 
-if seen == {"app-01", "app-02"}:
-    print("PASS recovery: both backends served requests")
+if seen == expected:
+    print(f"PASS recovery: {sorted(expected)} served requests")
 else:
     print(f"FAIL recovery: seen={sorted(seen)}")
     failed = True

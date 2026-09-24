@@ -33,3 +33,14 @@
 - Fix: Mounted the PostgreSQL named volume at `/var/lib/postgresql/data`, enabled Redis AOF on a named volume, removed database/cache host port publication, and isolated the backend network.
 - Retest: Record `id=4`, title `volume-proof-20260923`, remained after PostgreSQL and app recreation. A custom-format dump restored the same row into `barq_restore_test`.
 - Commit: `5b0b40a` for volume/network changes; backup/restore scripts were committed later.
+
+## 2026-09-24 — Live public port and third backend
+
+- Symptom: Compose could not start NGINX because both app containers were unhealthy; NGINX remained in `Created` state.
+- Hypothesis and test: Inspected app health-check output and startup logs. The checks received `Connection refused` at `127.0.0.1:8080/health`, while Flask reported listening on port 8090.
+- Root cause: The internal app port had changed to 8090, but its health checks and NGINX upstreams still used internal port 8080. The intended public change was only the NGINX host publication to 8090.
+- Failed attempts: Recreating NGINX did not fix the unhealthy apps. One `sed` expression did not match `PUBLIC_PORT`; another introduced leading whitespace. Reading the rendered Compose configuration and Flask startup logs identified the actual port mismatch.
+- Fix: Restored internal `APP_PORT` to 8080 while publishing NGINX on host port 8090.
+- Additional issue: `nginx -t` reported `host not found in upstream "app-03:8080"` before the third app was available on `frontend`. Starting the third backend before NGINX tests/reload addressed that ordering issue.
+- Retest: Cite actual final `/ready`, `/instance`, container status and validation output if available; a successful result has not been inferred from configuration alone.
+- Related commits: The live change preceded documentation commit `4869b9f`; see `docs/EVIDENCE_INDEX.md` for the exact video commit and timestamp.
